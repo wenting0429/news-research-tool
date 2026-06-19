@@ -1,688 +1,670 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>政治立場追蹤器</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新聞蒐集工具</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root {
-  --purple-50: #EEEDFE;
-  --purple-200: #AFA9EC;
-  --purple-400: #7F77DD;
-  --purple-600: #534AB7;
-  --purple-800: #3C3489;
-  --teal-50: #E1F5EE;
-  --teal-600: #0F6E56;
-  --teal-400: #1D9E75;
-  --amber-50: #FAEEDA;
-  --amber-600: #854F0B;
-  --coral-50: #FAECE7;
-  --coral-600: #993C1D;
-  --pink-50: #FBEAF0;
-  --pink-600: #993556;
-  --gray-100: #F5F5F3;
-  --gray-200: #E8E6E0;
-  --gray-400: #888780;
-  --gray-600: #5F5E5A;
-  --gray-900: #1A1A18;
-  --bg: #F7F6F2;
-  --surface: #FFFFFF;
-  --border: rgba(0,0,0,0.08);
-  --border-md: rgba(0,0,0,0.14);
-  --text-primary: #1A1A18;
-  --text-secondary: #5F5E5A;
-  --text-muted: #888780;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-}
+    :root {
+      --bg: #f8f7f4;
+      --surface: #ffffff;
+      --border: rgba(0,0,0,0.1);
+      --border-strong: rgba(0,0,0,0.18);
+      --text: #1a1a1a;
+      --text-muted: #6b6b6b;
+      --text-hint: #999;
+      --accent: #2563eb;
+      --accent-bg: #eff6ff;
+      --accent-text: #1d4ed8;
+      --radius: 10px;
+      --radius-lg: 14px;
+    }
 
-body {
-  font-family: 'Noto Sans TC', sans-serif;
-  background: var(--bg);
-  color: var(--text-primary);
-  min-height: 100vh;
-  font-size: 15px;
-  line-height: 1.6;
-}
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+    }
 
-/* ── Layout ── */
-.page {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 2.5rem 1.5rem 4rem;
-}
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
 
-/* ── Header ── */
-.site-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 2.5rem;
-}
-.logo-area {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.logo-icon {
-  width: 44px; height: 44px;
-  background: var(--purple-600);
-  border-radius: var(--radius-md);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.logo-icon svg { width: 24px; height: 24px; stroke: white; fill: none; stroke-width: 1.8; }
-.site-title { font-size: 22px; font-weight: 700; color: var(--text-primary); }
-.site-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+    /* ── Lock screen ── */
+    #lock-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
 
-/* ── Search Panel ── */
-.search-panel {
-  background: var(--surface);
-  border: 0.5px solid var(--border-md);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-}
-.panel-title {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 1rem;
-}
-.fields-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 1rem;
-}
-@media (max-width: 600px) {
-  .fields-row { grid-template-columns: 1fr; }
-}
-.field-group { display: flex; flex-direction: column; gap: 5px; }
-.field-group label {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.field-group input {
-  padding: 9px 12px;
-  font-size: 14px;
-  font-family: inherit;
-  border: 0.5px solid var(--border-md);
-  border-radius: var(--radius-sm);
-  background: var(--bg);
-  color: var(--text-primary);
-  transition: border-color 0.15s, box-shadow 0.15s;
-  outline: none;
-}
-.field-group input:focus {
-  border-color: var(--purple-400);
-  box-shadow: 0 0 0 3px rgba(127,119,221,0.15);
-  background: white;
-}
-.field-group input::placeholder { color: var(--text-muted); }
+    .lock-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 340px;
+      text-align: center;
+    }
 
-.api-hint {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-bottom: 1rem;
-  padding: 8px 12px;
-  background: var(--gray-100);
-  border-radius: var(--radius-sm);
-  border-left: 3px solid var(--purple-400);
-}
-.api-hint a { color: var(--purple-600); }
+    .lock-icon {
+      font-size: 36px;
+      margin-bottom: 1rem;
+    }
 
-.search-btn {
-  width: 100%;
-  padding: 11px;
-  background: var(--purple-600);
-  color: white;
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: 15px;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: background 0.15s, transform 0.1s;
-}
-.search-btn:hover { background: var(--purple-800); }
-.search-btn:active { transform: scale(0.99); }
-.search-btn:disabled {
-  background: var(--gray-200);
-  color: var(--text-muted);
-  cursor: not-allowed;
-  transform: none;
-}
-.search-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .lock-card h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
 
-/* ── Status ── */
-.status-bar {
-  display: none;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: var(--purple-50);
-  border: 0.5px solid var(--purple-200);
-  border-radius: var(--radius-md);
-  margin-bottom: 1.5rem;
-  font-size: 13px;
-  color: var(--purple-800);
-}
-.status-bar.visible { display: flex; }
-.spinner {
-  width: 18px; height: 18px;
-  border: 2px solid var(--purple-200);
-  border-top-color: var(--purple-600);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  flex-shrink: 0;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+    .lock-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
 
-.error-bar {
-  display: none;
-  padding: 12px 16px;
-  background: var(--coral-50);
-  border: 0.5px solid #F09595;
-  border-radius: var(--radius-md);
-  color: var(--coral-600);
-  font-size: 13px;
-  margin-bottom: 1.5rem;
-}
-.error-bar.visible { display: block; }
+    .pin-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
 
-/* ── Results ── */
-.results { display: none; }
-.results.visible { display: block; }
+    .pin-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border-strong);
+      background: transparent;
+      transition: background 0.15s;
+    }
 
-/* ── Stats ── */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 1.5rem;
-}
-@media (max-width: 600px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
-.stat-card {
-  background: var(--surface);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 14px 16px;
-  text-align: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-}
-.stat-num {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1.2;
-}
-.stat-lbl { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-.stat-card.purple .stat-num { color: var(--purple-600); }
-.stat-card.teal .stat-num { color: var(--teal-400); }
-.stat-card.coral .stat-num { color: #D85A30; }
+    .pin-dot.filled {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
 
-/* ── Themes ── */
-.themes-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 1.5rem;
-  align-items: center;
-}
-.themes-label {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-weight: 500;
-}
-.theme-tag {
-  padding: 4px 12px;
-  background: var(--purple-50);
-  color: var(--purple-600);
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
-  border: 0.5px solid var(--purple-200);
-}
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
 
-/* ── Timeline ── */
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-}
-.section-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-.filter-tabs {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.filter-tab {
-  padding: 5px 12px;
-  font-size: 12px;
-  font-family: inherit;
-  border: 0.5px solid var(--border-md);
-  border-radius: 20px;
-  background: white;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.15s;
-  font-weight: 500;
-}
-.filter-tab:hover { border-color: var(--purple-400); color: var(--purple-600); }
-.filter-tab.active {
-  background: var(--purple-600);
-  color: white;
-  border-color: var(--purple-600);
-}
+    .num-btn {
+      height: 52px;
+      border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius);
+      background: var(--surface);
+      font-size: 20px;
+      font-family: inherit;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.1s;
+    }
 
-.timeline {
-  position: relative;
-  padding-left: 28px;
-}
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: 8px;
-  top: 16px;
-  bottom: 16px;
-  width: 1.5px;
-  background: var(--gray-200);
-}
+    .num-btn:hover { background: var(--bg); }
+    .num-btn:active { background: #e5e5e5; }
 
-.timeline-item { position: relative; margin-bottom: 16px; }
-.timeline-dot {
-  position: absolute;
-  left: -23px;
-  top: 16px;
-  width: 12px; height: 12px;
-  border-radius: 50%;
-  background: var(--purple-600);
-  border: 2px solid var(--bg);
-  box-shadow: 0 0 0 1.5px var(--purple-600);
-  z-index: 1;
-}
-.timeline-dot.cat-policy    { background: var(--teal-400);  box-shadow: 0 0 0 1.5px var(--teal-400); }
-.timeline-dot.cat-economy   { background: #BA7517;           box-shadow: 0 0 0 1.5px #BA7517; }
-.timeline-dot.cat-scandal   { background: #D85A30;           box-shadow: 0 0 0 1.5px #D85A30; }
-.timeline-dot.cat-statement { background: #D4537E;           box-shadow: 0 0 0 1.5px #D4537E; }
-.timeline-dot.cat-general   { background: var(--purple-600); box-shadow: 0 0 0 1.5px var(--purple-600); }
+    .num-btn.del {
+      font-size: 16px;
+      color: var(--text-muted);
+    }
 
-.event-card {
-  background: var(--surface);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 14px 16px;
-  cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-}
-.event-card:hover { border-color: var(--border-md); box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-.event-card.expanded { border-color: var(--purple-400); }
+    .lock-error {
+      font-size: 13px;
+      color: #dc2626;
+      min-height: 18px;
+      margin-top: -0.5rem;
+    }
 
-.event-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 7px;
-  flex-wrap: wrap;
-}
-.event-date { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
-.cat-pill {
-  font-size: 11px;
-  padding: 2px 9px;
-  border-radius: 10px;
-  font-weight: 500;
-}
-.cat-pill.cat-policy    { background: var(--teal-50);  color: var(--teal-600); }
-.cat-pill.cat-economy   { background: var(--amber-50); color: var(--amber-600); }
-.cat-pill.cat-scandal   { background: var(--coral-50); color: var(--coral-600); }
-.cat-pill.cat-statement { background: var(--pink-50);  color: var(--pink-600); }
-.cat-pill.cat-general   { background: var(--purple-50); color: var(--purple-600); }
+    /* ── Main app (hidden until unlocked) ── */
+    #app { display: none; }
 
-.sentiment-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.sentiment-dot.positive { background: var(--teal-400); }
-.sentiment-dot.neutral  { background: var(--gray-400); }
-.sentiment-dot.negative { background: #D85A30; }
+    header { margin-bottom: 2rem; }
+    header h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+    header p { font-size: 14px; color: var(--text-muted); }
 
-.event-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 8px;
-  line-height: 1.45;
-}
-.keywords-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 4px;
-}
-.kw {
-  font-size: 12px;
-  padding: 3px 9px;
-  background: var(--gray-100);
-  color: var(--text-secondary);
-  border-radius: 10px;
-  border: 0.5px solid var(--border);
-}
-.kw.star {
-  background: var(--purple-50);
-  color: var(--purple-600);
-  border-color: var(--purple-200);
-  font-weight: 500;
-}
+    .card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
 
-.expand-hint {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 6px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.expand-hint svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; transition: transform 0.2s; }
-.event-card.expanded .expand-hint svg { transform: rotate(180deg); }
+    .field { margin-bottom: 1.25rem; }
+    .field:last-child { margin-bottom: 0; }
 
-.event-detail {
-  display: none;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 0.5px solid var(--border);
-}
-.event-card.expanded .event-detail { display: block; }
-.event-summary {
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.75;
-  margin-bottom: 10px;
-}
-.read-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 13px;
-  color: var(--purple-600);
-  text-decoration: none;
-  font-weight: 500;
-  padding: 6px 12px;
-  background: var(--purple-50);
-  border-radius: var(--radius-sm);
-  border: 0.5px solid var(--purple-200);
-  transition: background 0.15s;
-}
-.read-link:hover { background: var(--purple-200); }
-.read-link svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
 
-.no-results {
-  text-align: center;
-  padding: 2rem;
-  color: var(--text-muted);
-  font-size: 14px;
-}
+    input[type="text"], select {
+      width: 100%;
+      height: 40px;
+      border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius);
+      padding: 0 12px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--surface);
+      outline: none;
+      transition: border-color 0.15s;
+    }
 
-/* ── Footer ── */
-.site-footer {
-  margin-top: 3rem;
-  padding-top: 1.5rem;
-  border-top: 0.5px solid var(--border);
-  text-align: center;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-</style>
+    input[type="text"]:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .tag-area {
+      min-height: 40px;
+      border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius);
+      padding: 6px 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      cursor: text;
+      margin-bottom: 8px;
+      background: var(--surface);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--accent-bg);
+      color: var(--accent-text);
+      font-size: 13px;
+      padding: 3px 10px;
+      border-radius: 99px;
+    }
+
+    .tag button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: inherit;
+      font-size: 16px;
+      line-height: 1;
+      padding: 0;
+      opacity: 0.5;
+    }
+
+    .tag button:hover { opacity: 1; }
+
+    .tag-hint { font-size: 13px; color: var(--text-hint); }
+
+    .add-tag-row { display: flex; gap: 8px; }
+    .add-tag-row input { flex: 1; }
+
+    .btn-add {
+      height: 40px;
+      padding: 0 16px;
+      background: var(--surface);
+      border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+      color: var(--text);
+      white-space: nowrap;
+      transition: background 0.1s;
+    }
+
+    .btn-add:hover { background: var(--bg); }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 0.5px solid var(--border);
+      margin: 1.25rem 0;
+    }
+
+    .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .region-group {
+      width: 100%;
+      font-size: 11px;
+      color: var(--text-hint);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin: 8px 0 4px;
+    }
+
+    .region-group:first-child { margin-top: 0; }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      font-family: inherit;
+      padding: 5px 13px;
+      border-radius: 99px;
+      border: 0.5px solid var(--border-strong);
+      background: var(--bg);
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.12s;
+    }
+
+    .chip:hover { background: #eee; }
+
+    .chip.selected {
+      background: var(--accent-bg);
+      color: var(--accent-text);
+      border-color: transparent;
+    }
+
+    .btn-search {
+      width: 100%;
+      height: 48px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 16px;
+      font-family: inherit;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s;
+      margin-top: 1.5rem;
+    }
+
+    .btn-search:hover { background: #1d4ed8; }
+    .btn-search:active { transform: scale(0.99); }
+
+    .result-panel {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      display: none;
+    }
+
+    .result-panel.visible { display: block; }
+
+    .result-panel h2 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .prompt-box {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-bottom: 1rem;
+    }
+
+    .copy-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .btn-copy, .btn-claude {
+      height: 38px;
+      padding: 0 18px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+
+    .btn-copy {
+      background: var(--surface);
+      border: 0.5px solid var(--border-strong);
+      color: var(--text);
+    }
+
+    .btn-copy:hover { background: var(--bg); }
+
+    .btn-claude {
+      background: #7c3aed;
+      border: none;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .btn-claude:hover { background: #6d28d9; }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1a1a1a;
+      color: #fff;
+      font-size: 14px;
+      padding: 10px 20px;
+      border-radius: 99px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s;
+      z-index: 100;
+    }
+
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 500px) {
+      .row-2 { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-<div class="page">
 
-  <header class="site-header">
-    <div class="logo-area">
-      <div class="logo-icon">
-        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+  <!-- Lock Screen -->
+  <div id="lock-screen">
+    <div class="lock-card">
+      <div class="lock-icon">🔒</div>
+      <h2>請輸入密碼</h2>
+      <p>輸入 4 位數字密碼以繼續</p>
+      <div class="pin-row" id="pin-row">
+        <div class="pin-dot" id="dot-0"></div>
+        <div class="pin-dot" id="dot-1"></div>
+        <div class="pin-dot" id="dot-2"></div>
+        <div class="pin-dot" id="dot-3"></div>
       </div>
-      <div>
-        <div class="site-title">政治立場追蹤器</div>
-        <div class="site-sub">AI 驅動 · 新聞全文分析 · 事件時間線</div>
+      <div class="numpad">
+        <button class="num-btn" onclick="pressNum('1')">1</button>
+        <button class="num-btn" onclick="pressNum('2')">2</button>
+        <button class="num-btn" onclick="pressNum('3')">3</button>
+        <button class="num-btn" onclick="pressNum('4')">4</button>
+        <button class="num-btn" onclick="pressNum('5')">5</button>
+        <button class="num-btn" onclick="pressNum('6')">6</button>
+        <button class="num-btn" onclick="pressNum('7')">7</button>
+        <button class="num-btn" onclick="pressNum('8')">8</button>
+        <button class="num-btn" onclick="pressNum('9')">9</button>
+        <button class="num-btn" onclick="pressNum('0')" style="grid-column:2">0</button>
+        <button class="num-btn del" onclick="pressDelete()">⌫</button>
       </div>
+      <div class="lock-error" id="lock-error"></div>
     </div>
-  </header>
-
-  <div class="search-panel">
-    <div class="panel-title">設定追蹤目標</div>
-    <div class="fields-row">
-      <div class="field-group">
-        <label>政治人物</label>
-        <input id="politician" type="text" placeholder="例：柯文哲" />
-      </div>
-      <div class="field-group">
-        <label>新聞網站</label>
-        <input id="newssite" type="text" placeholder="例：udn.com" />
-      </div>
-      <div class="field-group">
-        <label>Anthropic API Key</label>
-        <input id="apikey" type="password" placeholder="sk-ant-..." />
-      </div>
-    </div>
-    <div class="api-hint">
-      需要 Anthropic API Key 才能執行 AI 分析。可於 <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> 取得，格式為 <code>sk-ant-...</code>
-    </div>
-    <button class="search-btn" id="searchBtn" onclick="startSearch()">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      開始追蹤分析
-    </button>
   </div>
 
-  <div class="status-bar" id="statusBar">
-    <div class="spinner"></div>
-    <span id="statusText">正在分析中，請稍候...</span>
-  </div>
+  <!-- Main App -->
+  <div id="app">
+    <div class="container">
+      <header>
+        <h1>📰 新聞蒐集工具</h1>
+        <p>輸入人名與議題關鍵字，自動產生搜尋指令，貼到 Claude 即可蒐集新聞</p>
+      </header>
 
-  <div class="error-bar" id="errorBar"></div>
+      <div class="card">
+        <div class="row-2">
+          <div class="field">
+            <label>人名</label>
+            <input type="text" id="person-input" placeholder="例：馬英九、黃仁勳" />
+          </div>
+          <div class="field">
+            <label>時間範圍</label>
+            <select id="time-range">
+              <option value="過去十年">過去十年</option>
+              <option value="過去五年">過去五年</option>
+              <option value="過去三年">過去三年</option>
+              <option value="過去一年">過去一年</option>
+            </select>
+          </div>
+        </div>
 
-  <div class="results" id="results">
-    <div class="stats-grid" id="statsGrid"></div>
-    <div class="themes-row" id="themesRow"></div>
-    <div class="section-header">
-      <div class="section-title" id="sectionTitle">事件時間線</div>
-      <div class="filter-tabs" id="filterTabs"></div>
+        <div class="field">
+          <label>議題關鍵字（可新增多個）</label>
+          <div class="tag-area" id="tags-area" onclick="document.getElementById('tag-input').focus()">
+            <span class="tag-hint" id="tags-hint">尚未新增關鍵字</span>
+          </div>
+          <div class="add-tag-row">
+            <input type="text" id="tag-input" placeholder="輸入關鍵字後按 Enter 或點新增" />
+            <button class="btn-add" onclick="addTag()">＋ 新增</button>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <div class="field">
+          <div class="section-title">新聞來源地區（可複選）</div>
+          <div class="chip-group" id="region-chips">
+            <div class="region-group">亞洲</div>
+            <span class="chip selected" data-val="台灣" onclick="toggleChip(this,'region')">🇹🇼 台灣</span>
+            <span class="chip" data-val="中國" onclick="toggleChip(this,'region')">🇨🇳 中國</span>
+            <span class="chip" data-val="香港" onclick="toggleChip(this,'region')">🇭🇰 香港</span>
+            <span class="chip" data-val="日本" onclick="toggleChip(this,'region')">🇯🇵 日本</span>
+            <span class="chip" data-val="新加坡" onclick="toggleChip(this,'region')">🇸🇬 新加坡</span>
+            <div class="region-group">美洲</div>
+            <span class="chip" data-val="美國" onclick="toggleChip(this,'region')">🇺🇸 美國</span>
+            <div class="region-group">歐洲</div>
+            <span class="chip" data-val="歐洲" onclick="toggleChip(this,'region')">🇪🇺 歐洲</span>
+            <span class="chip" data-val="英國" onclick="toggleChip(this,'region')">🇬🇧 英國</span>
+            <span class="chip" data-val="德國" onclick="toggleChip(this,'region')">🇩🇪 德國</span>
+            <span class="chip" data-val="荷蘭" onclick="toggleChip(this,'region')">🇳🇱 荷蘭</span>
+            <span class="chip" data-val="法國" onclick="toggleChip(this,'region')">🇫🇷 法國</span>
+            <span class="chip" data-val="西班牙" onclick="toggleChip(this,'region')">🇪🇸 西班牙</span>
+            <span class="chip" data-val="義大利" onclick="toggleChip(this,'region')">🇮🇹 義大利</span>
+            <div class="region-group">不限</div>
+            <span class="chip" data-val="不限地區" onclick="toggleChip(this,'region')">🌐 不限</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="section-title">新聞語言（可複選）</div>
+          <div class="chip-group" id="lang-chips">
+            <span class="chip selected" data-val="繁體中文" onclick="toggleChip(this,'lang')">繁中</span>
+            <span class="chip" data-val="簡體中文" onclick="toggleChip(this,'lang')">简中</span>
+            <span class="chip" data-val="英文" onclick="toggleChip(this,'lang')">EN</span>
+            <span class="chip" data-val="日文" onclick="toggleChip(this,'lang')">日本語</span>
+            <span class="chip" data-val="德文" onclick="toggleChip(this,'lang')">DE</span>
+            <span class="chip" data-val="法文" onclick="toggleChip(this,'lang')">FR</span>
+            <span class="chip" data-val="不限語言" onclick="toggleChip(this,'lang')">🌐 不限</span>
+          </div>
+        </div>
+
+        <button class="btn-search" onclick="generatePrompt()">
+          🔍 產生搜尋指令
+        </button>
+      </div>
+
+      <div class="result-panel" id="result-panel">
+        <h2>搜尋指令已產生</h2>
+        <div class="prompt-box" id="prompt-box"></div>
+        <div class="copy-row">
+          <button class="btn-copy" onclick="copyPrompt()">📋 複製指令</button>
+          <a class="btn-claude" href="https://claude.ai" target="_blank" rel="noopener">前往 Claude 貼上 ↗</a>
+        </div>
+      </div>
     </div>
-    <div class="timeline" id="timeline"></div>
   </div>
 
-  <footer class="site-footer">
-    本工具使用 Anthropic Claude 進行分析，資料來自公開新聞網站。
-  </footer>
-</div>
+  <div class="toast" id="toast">已複製到剪貼簿 ✓</div>
 
-<script>
-let currentData = null;
-let activeFilter = '全部';
+  <script>
+    /* ── Password ── */
+    const CORRECT = '0213';
+    let entered = '';
 
-const catLabels = {
-  policy: '政策', economy: '經濟', scandal: '爭議', statement: '言論', general: '一般'
-};
-const sentimentLabels = { positive: '正面', neutral: '中立', negative: '負面' };
+    function pressNum(n) {
+      if (entered.length >= 4) return;
+      entered += n;
+      updateDots();
+      if (entered.length === 4) checkPassword();
+    }
 
-document.getElementById('apikey').value = localStorage.getItem('pt_apikey') || '';
+    function pressDelete() {
+      entered = entered.slice(0, -1);
+      updateDots();
+      document.getElementById('lock-error').textContent = '';
+    }
 
-async function startSearch() {
-  const politician = document.getElementById('politician').value.trim();
-  const newssite   = document.getElementById('newssite').value.trim();
-  const apiKey     = document.getElementById('apikey').value.trim();
+    function updateDots() {
+      for (let i = 0; i < 4; i++) {
+        document.getElementById('dot-' + i).classList.toggle('filled', i < entered.length);
+      }
+    }
 
-  if (!politician || !newssite || !apiKey) {
-    showError('請填寫政治人物、新聞網站及 API Key。');
-    return;
-  }
+    function checkPassword() {
+      if (entered === CORRECT) {
+        document.getElementById('lock-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+      } else {
+        document.getElementById('lock-error').textContent = '密碼錯誤，請重試';
+        entered = '';
+        updateDots();
+        for (let i = 0; i < 4; i++) {
+          const dot = document.getElementById('dot-' + i);
+          dot.style.borderColor = '#dc2626';
+          setTimeout(() => { dot.style.borderColor = ''; }, 600);
+        }
+      }
+    }
 
-  localStorage.setItem('pt_apikey', apiKey);
-
-  const btn = document.getElementById('searchBtn');
-  btn.disabled = true;
-  hide('errorBar');
-  hide('results');
-  show('statusBar');
-  setStatus(`正在搜尋 ${newssite} 關於「${politician}」的報導...`);
-
-  try {
-    const res = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ politician, newssite, apiKey })
+    document.addEventListener('keydown', e => {
+      if (document.getElementById('lock-screen').style.display === 'none') return;
+      if (e.key >= '0' && e.key <= '9') pressNum(e.key);
+      if (e.key === 'Backspace') pressDelete();
     });
-    const data = await res.json();
 
-    if (!res.ok) throw new Error(data.error || '分析失敗');
+    /* ── App ── */
+    let tags = [];
 
-    currentData = data;
-    render(data);
-    show('results');
+    function addTag() {
+      const input = document.getElementById('tag-input');
+      const val = input.value.trim();
+      if (!val || tags.includes(val)) { input.value = ''; return; }
+      tags.push(val);
+      renderTags();
+      input.value = '';
+    }
 
-  } catch (err) {
-    showError(err.message);
-  } finally {
-    btn.disabled = false;
-    hide('statusBar');
-  }
-}
+    function removeTag(t) {
+      tags = tags.filter(x => x !== t);
+      renderTags();
+    }
 
-function render(data) {
-  const sentimentCount = data.events.reduce((acc, e) => {
-    acc[e.sentiment] = (acc[e.sentiment] || 0) + 1; return acc;
-  }, {});
+    function renderTags() {
+      const area = document.getElementById('tags-area');
+      const hint = document.getElementById('tags-hint');
+      area.innerHTML = '';
+      if (tags.length === 0) {
+        hint.textContent = '尚未新增關鍵字';
+        area.appendChild(hint);
+        return;
+      }
+      tags.forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'tag';
+        span.innerHTML = `${t} <button onclick="removeTag('${t}')" aria-label="移除">×</button>`;
+        area.appendChild(span);
+      });
+    }
 
-  document.getElementById('statsGrid').innerHTML = `
-    <div class="stat-card purple">
-      <div class="stat-num">${data.total_articles || data.events.length}</div>
-      <div class="stat-lbl">篇相關報導</div>
-    </div>
-    <div class="stat-card teal">
-      <div class="stat-num">${sentimentCount.positive || 0}</div>
-      <div class="stat-lbl">正面報導</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num">${sentimentCount.neutral || 0}</div>
-      <div class="stat-lbl">中立報導</div>
-    </div>
-    <div class="stat-card coral">
-      <div class="stat-num">${sentimentCount.negative || 0}</div>
-      <div class="stat-lbl">負面報導</div>
-    </div>
-  `;
+    document.getElementById('tag-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); addTag(); }
+    });
 
-  const themesRow = document.getElementById('themesRow');
-  if (data.key_themes && data.key_themes.length) {
-    themesRow.innerHTML = `<span class="themes-label">核心主題</span>` +
-      data.key_themes.map(t => `<span class="theme-tag">${t}</span>`).join('');
-    themesRow.style.display = 'flex';
-  } else {
-    themesRow.style.display = 'none';
-  }
+    function toggleChip(el, group) {
+      const isUnlimited = el.dataset.val.startsWith('不限');
+      const groupId = group === 'region' ? 'region-chips' : 'lang-chips';
+      const chips = [...document.querySelectorAll(`#${groupId} .chip`)];
+      if (isUnlimited) {
+        chips.forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        return;
+      }
+      const unlimitChip = chips.find(c => c.dataset.val.startsWith('不限'));
+      if (unlimitChip) unlimitChip.classList.remove('selected');
+      el.classList.toggle('selected');
+      const anySelected = chips.filter(c => c.classList.contains('selected')).length > 0;
+      if (!anySelected && unlimitChip) unlimitChip.classList.add('selected');
+    }
 
-  document.getElementById('sectionTitle').textContent =
-    `${data.politician} 事件時間線`;
+    function getSelected(groupId) {
+      return [...document.querySelectorAll(`#${groupId} .chip.selected`)].map(c => c.dataset.val);
+    }
 
-  const allCats = ['全部', ...new Set(data.events.map(e => catLabels[e.category] || '一般'))];
-  document.getElementById('filterTabs').innerHTML = allCats.map(c =>
-    `<button class="filter-tab ${c === '全部' ? 'active' : ''}" onclick="filterBy('${c}', this)">${c}</button>`
-  ).join('');
+    function generatePrompt() {
+      const person = document.getElementById('person-input').value.trim();
+      const timeRange = document.getElementById('time-range').value;
+      if (!person) { alert('請輸入人名'); return; }
+      if (tags.length === 0) { alert('請至少新增一個議題關鍵字'); return; }
 
-  renderTimeline(data.events, '全部');
-}
+      const regions = getSelected('region-chips');
+      const langs = getSelected('lang-chips');
+      const keywordsStr = tags.join('、');
+      const regionStr = regions.includes('不限地區') ? '不限地區' : regions.join('、');
+      const langStr = langs.includes('不限語言') ? '不限語言' : langs.join('、');
 
-function filterBy(cat, btn) {
-  activeFilter = cat;
-  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  renderTimeline(currentData.events, cat);
-}
+      const prompt =
+`請幫我蒐集新聞報導，條件如下：
+- 人名：${person}
+- 議題關鍵字：${keywordsStr}
+- 時間範圍：${timeRange}
+- 新聞來源地區：${regionStr}
+- 新聞語言：${langStr}
 
-function renderTimeline(events, filter) {
-  const filtered = filter === '全部'
-    ? events
-    : events.filter(e => (catLabels[e.category] || '一般') === filter);
+請用網路搜尋找出符合條件的重要新聞報導，盡量找 10 則以上，依時間由近到遠排序。
 
-  const tl = document.getElementById('timeline');
-  if (!filtered.length) {
-    tl.innerHTML = '<div class="no-results">此分類目前無事件</div>';
-    return;
-  }
+每則新聞請只列出以下欄位，不需要摘要：
+- 標題
+- 來源媒體與地區
+- 日期
+- 語言
+- 連結（必須是可以實際 access 的真實網址）`;
 
-  tl.innerHTML = filtered.map(e => {
-    const cat = e.category || 'general';
-    const catLbl = catLabels[cat] || '一般';
-    const kws = (e.keywords || []).map(k =>
-      `<span class="kw ${k === e.highlight_keyword ? 'star' : ''}">${k}</span>`
-    ).join('');
-    const linkHtml = e.url
-      ? `<a class="read-link" href="${e.url}" target="_blank">
-           <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-           閱讀原文
-         </a>`
-      : '';
+      document.getElementById('prompt-box').textContent = prompt;
+      const panel = document.getElementById('result-panel');
+      panel.classList.add('visible');
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 
-    return `
-    <div class="timeline-item">
-      <div class="timeline-dot cat-${cat}"></div>
-      <div class="event-card" onclick="toggleCard(this)">
-        <div class="event-meta">
-          <span class="event-date">${e.date}</span>
-          <span class="cat-pill cat-${cat}">${catLbl}</span>
-          <span class="sentiment-dot ${e.sentiment || 'neutral'}" title="${sentimentLabels[e.sentiment] || '中立'}"></span>
-        </div>
-        <div class="event-title">${e.title}</div>
-        <div class="keywords-row">${kws}</div>
-        <div class="expand-hint">
-          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-          點擊展開摘要
-        </div>
-        <div class="event-detail">
-          <div class="event-summary">${e.summary}</div>
-          ${linkHtml}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function toggleCard(card) { card.classList.toggle('expanded'); }
-
-function show(id) { document.getElementById(id).classList.add('visible'); }
-function hide(id) { document.getElementById(id).classList.remove('visible'); }
-function setStatus(t) { document.getElementById('statusText').textContent = t; }
-function showError(msg) {
-  const el = document.getElementById('errorBar');
-  el.textContent = '⚠ ' + msg;
-  el.classList.add('visible');
-}
-
-document.getElementById('politician').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('newssite').focus(); });
-document.getElementById('newssite').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('apikey').focus(); });
-document.getElementById('apikey').addEventListener('keydown', e => { if (e.key==='Enter') startSearch(); });
-</script>
+    function copyPrompt() {
+      const text = document.getElementById('prompt-box').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
+      });
+    }
+  </script>
 </body>
 </html>
